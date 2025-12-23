@@ -15,17 +15,20 @@ export default function Portfolio() {
   const [fullChartData, setFullChartData] = useState([]);
   const [filteredChartData, setFilteredChartData] = useState([]);
 
-  const applyDateFilter = useCallback((fromDate, toDate) => {
-    console.log("fromDate, toDate", fromDate, toDate);
-    if (!fromDate && !toDate) {
-      setFilteredChartData(fullChartData);
-      return;
-    }
-    let data = [...fullChartData];
-    console.log("data", typeof data[0]?.date);
-    data = data.filter((d) => d.date >= fromDate && d.date <= toDate);
-    setFilteredChartData(data || []);
-  }, [fullChartData]);
+  const applyDateFilter = useCallback(
+    (fromDate, toDate) => {
+      console.log("fromDate, toDate", fromDate, toDate);
+      if (!fromDate && !toDate) {
+        setFilteredChartData(fullChartData);
+        return;
+      }
+      let data = [...fullChartData];
+      console.log("data", typeof data[0]?.date);
+      data = data.filter((d) => d.date >= fromDate && d.date <= toDate);
+      setFilteredChartData(data || []);
+    },
+    [fullChartData]
+  );
 
   const equityAndDrawdownData = useMemo(() => {
     if (!navData.length) return [];
