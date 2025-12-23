@@ -34,6 +34,7 @@ export default function EquityDrawdownChart({ data = [], applyDateFilter }) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
+                syncId="portfolioSync"
                 margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
               >
                 <XAxis dataKey="date" hide />
@@ -55,6 +56,7 @@ export default function EquityDrawdownChart({ data = [], applyDateFilter }) {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data}
+                syncId="portfolioSync"
                 margin={{ top: 10, right: 20, left: 10, bottom: 20 }}
               >
                 <XAxis dataKey="date" />
