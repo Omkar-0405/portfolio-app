@@ -1,4 +1,3 @@
-import DashboardLayout from "../layouts/DashboardLayout";
 import BlogCard from "../components/BlogCard";
 
 const infoCards = [
