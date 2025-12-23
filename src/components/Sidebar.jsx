@@ -17,6 +17,9 @@ export default function Sidebar({ setSidebarOpen }) {
           <NavLink
             key={item.label}
             to={item.path}
+            onClick={() => {
+              setSidebarOpen(false);
+            }}
             className={({ isActive }) =>
               `block px-3 py-2 rounded-md ${
                 isActive
