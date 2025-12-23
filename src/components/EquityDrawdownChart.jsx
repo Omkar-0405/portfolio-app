@@ -13,21 +13,24 @@ import ChartFilterForm from "./ChartFilterForm";
 export default function EquityDrawdownChart({ data = [], applyDateFilter }) {
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h3 className="py-4 font-semibold text-gray-800">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+        <h3 className="py-2 font-semibold text-gray-800 text-base sm:text-lg">
           Equity Curve (Indexed to 100)
         </h3>
-        <ChartFilterForm  applyDateFilter={applyDateFilter} />
+
+        <ChartFilterForm applyDateFilter={applyDateFilter} />
       </div>
 
+      {/* Empty State */}
       {!data || data.length === 0 ? (
-        <div className="flex items-center justify-center h-[320px] text-sm text-gray-500">
+        <div className="flex items-center justify-center h-[260px] sm:h-[320px] text-sm text-gray-500">
           No data available
         </div>
       ) : (
-        <div className="bg-white p-4 w-full">
+        <div className="bg-white p-3 sm:p-4 w-full rounded-xl border border-gray-200">
           {/* Equity Curve */}
-          <div className="w-full aspect-[16/6]">
+          <div className="w-full aspect-[4/3] sm:aspect-[16/6]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
@@ -48,7 +51,7 @@ export default function EquityDrawdownChart({ data = [], applyDateFilter }) {
           </div>
 
           {/* Drawdown */}
-          <div className="w-full aspect-[16/3]">
+          <div className="w-full aspect-[4/2] sm:aspect-[16/3] mt-6">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data}
