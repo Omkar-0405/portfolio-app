@@ -13,12 +13,12 @@ const months = [
   "Dec",
 ];
 
-export default function MonthlyReturnsTable({ data }) {
+export default function MonthlyYearlyReturnsTable({ data }) {
   const { grouped, yearlyReturns } = data;
 
   return (
     <div style={{ marginTop: 40 }}>
-      <h3 className="p-4"> Monthly Returns (%)</h3>
+      <h3 className="py-4 font-semibold text-gray-800"> Annual Returns (%)</h3>
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
         <table
           className="min-w-full text-sm"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseExcel } from "../utils/excelParser";
 import excelFile from "../data/portfolio.xlsx";
 import EquityDrawdownChart from "../components/EquityDrawdownChart";
@@ -7,94 +7,87 @@ import {
   getMonthlyReturns,
   groupReturnsByYear,
 } from "../utils/yearlyReturns";
-import MonthlyReturnsTable from "../components/MonthlyReturnsTable";
-import ChartFilterForm from "../components/ChartFilterForm";
+import MonthlyYearlyReturnsTable from "../components/MonthlyYearlyReturnsTable";
 
 export default function Portfolio() {
+  const [navData, setNavData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [fullChartData, setFullChartData] = useState([]);
   const [filteredChartData, setFilteredChartData] = useState([]);
 
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-
-  function applyDateFilter(type) {
+  const applyDateFilter = useCallback((fromDate, toDate) => {
     console.log("fromDate, toDate", fromDate, toDate);
-    if (type && type === "fullChartData") {
+    if (!fromDate && !toDate) {
       setFilteredChartData(fullChartData);
-    } else {
-      let data = fullChartData;
-      if (fromDate && toDate) {
-        data = data.filter((d) => d.date >= fromDate && d.date <= toDate);
-      }
-      setFilteredChartData(data || []);
+      return;
     }
-  }
+    let data = [...fullChartData];
+    console.log("data", typeof data[0]?.date);
+    data = data.filter((d) => d.date >= fromDate && d.date <= toDate);
+    setFilteredChartData(data || []);
+  }, [fullChartData]);
+
+  const equityAndDrawdownData = useMemo(() => {
+    if (!navData.length) return [];
+
+    const baseNav = navData[0].nav;
+    let peak = 0;
+
+    return navData.map((d) => {
+      const equity = (d.nav / baseNav) * 100;
+      peak = Math.max(peak, equity);
+
+      return {
+        date: d.date.toISOString().slice(0, 10),
+        equity, // number
+        drawdown: ((equity - peak) / peak) * 100, // number
+      };
+    });
+  }, [navData]);
+
+  const monthlyAndYearlyData = useMemo(() => {
+    if (!navData.length) {
+      return { grouped: {}, yearlyReturns: {} };
+    }
+
+    const monthlyReturns = getMonthlyReturns(navData);
+    return {
+      grouped: groupReturnsByYear(monthlyReturns),
+      yearlyReturns: calculateYearlyReturns(monthlyReturns),
+    };
+  }, [navData]);
+
+  useEffect(() => {
+    setTableData(monthlyAndYearlyData);
+  }, [monthlyAndYearlyData]);
+
+  useEffect(() => {
+    setFullChartData(equityAndDrawdownData);
+    setFilteredChartData(equityAndDrawdownData);
+  }, [equityAndDrawdownData]);
 
   useEffect(() => {
     fetch(excelFile)
       .then((res) => res.blob())
       .then(parseExcel)
-      .then((navData) => {
-        const baseNav = navData[0].nav;
-
-        const equityCurve = navData.map((d) => ({
-          date: d.date.toISOString().slice(0, 10),
-          equity: ((d.nav / baseNav) * 100).toFixed(2),
-        }));
-
-        console.log("Equity Curve:", equityCurve.slice(0, 5));
-
-        // Drawdown
-        let peak = equityCurve[0].equity;
-
-        const equityCurveDrawdownData = equityCurve.map((d) => {
-          peak = Math.max(peak, d.equity);
-          return {
-            ...d,
-            drawdown: (((d.equity - peak) / peak) * 100).toFixed(2),
-          };
-        });
-
-        console.log("Drawdown Data:", equityCurveDrawdownData.slice(0, 5));
-
-        // Monthly returns
-        const monthlyReturns = getMonthlyReturns(navData);
-        const grouped = groupReturnsByYear(monthlyReturns);
-        //Yearly Returns
-        const yearlyReturns = calculateYearlyReturns(monthlyReturns);
-        setTableData({ grouped, yearlyReturns });
-
-        setFullChartData(equityCurveDrawdownData);
-        setFilteredChartData(equityCurveDrawdownData);
+      .then((data) => {
+        if (!data?.length) return;
+        setNavData(data);
       })
-      .catch((err) => console.error(err));
+      .catch(console.error);
   }, []);
 
-  console.log(" tableData", tableData);
-
   return (
-    <div className="container mx-auto px-4">
-      <MonthlyReturnsTable data={tableData} />
-      <br />
-      <div className="flex justify-end items-center">
-        <ChartFilterForm
+    <>
+      <h1 className="text-2xl font-semibold mb-6">Portfolio</h1>
+      <div className="container mx-auto px-4">
+        <MonthlyYearlyReturnsTable data={tableData} />
+        <br />
+        <EquityDrawdownChart
+          data={filteredChartData || {}}
           applyDateFilter={applyDateFilter}
-          fromDate={fromDate}
-          setFromDate={setFromDate}
-          toDate={toDate}
-          setToDate={setToDate}
-          setFilteredChartData={setFilteredChartData}
         />
       </div>
-      <EquityDrawdownChart
-        data={filteredChartData || {}}
-        applyDateFilter={applyDateFilter}
-        fromDate={fromDate}
-        setFromDate={setFromDate}
-        toDate={toDate}
-        setToDate={setToDate}
-      />
-    </div>
+    </>
   );
 }

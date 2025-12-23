@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const ChartFilterForm = ({
-  fromDate,
-  setFromDate,
+  // fromDate,
+  // setFromDate,
   applyDateFilter,
-  toDate,
-  setToDate,
+
+  // toDate,
+  // setToDate,
 }) => {
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   return (
     <div className="flex flex-wrap gap-4 items-end mb-4">
       <div>
@@ -14,7 +17,7 @@ const ChartFilterForm = ({
         <input
           type="date"
           className="border rounded-md px-3 py-2 text-sm"
-          value={fromDate}
+          value={fromDate || ""}
           onChange={(e) => {
             setFromDate(e.target.value);
             // applyDateFilter(e.target.value, toDate);
@@ -27,7 +30,7 @@ const ChartFilterForm = ({
         <input
           type="date"
           className="border rounded-md px-3 py-2 text-sm"
-          value={toDate}
+          value={toDate || ""}
           onChange={(e) => {
             setToDate(e.target.value);
           }}
@@ -39,7 +42,7 @@ const ChartFilterForm = ({
         hover:bg-blue-700 transition-colors
         focus:outline-none focus:ring-2 focus:ring-blue-400"
         onClick={() => {
-          applyDateFilter();
+          applyDateFilter(fromDate, toDate);
         }}
       >
         Submit
@@ -51,7 +54,7 @@ const ChartFilterForm = ({
         onClick={() => {
           setFromDate("");
           setToDate("");
-          applyDateFilter("fullChartData");
+          applyDateFilter("", "");
         }}
       >
         Reset
